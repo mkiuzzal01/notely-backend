@@ -4,12 +4,16 @@ import config from './config';
 import mongoose from 'mongoose';
 
 let server: Server;
+
+     console.log('Database URL:', config?.database_url);
+
 async function main() {
     try {
         server = app.listen(config.port, () => {
             console.log(`Example app listening on port ${config.port}`);
         });
         if (config.database_url) {
+       
             await mongoose.connect(config.database_url as string);
             console.log('Connected to MongoDB');
         } else {

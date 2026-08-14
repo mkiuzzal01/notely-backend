@@ -14,7 +14,7 @@ app.use(express.text());
 // Home route:
 app.get('/', (req: Request, res: Response) => {
     res.send({
-        message: 'Welcome to the E-commerce API',
+        message: 'Welcome to the Notely API',
         version: '1.0.0',
         date: new Date().toDateString(),
         author: 'MKI_UZZAL',
