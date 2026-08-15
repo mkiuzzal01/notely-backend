@@ -19,7 +19,8 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const note_service_1 = __importDefault(require("./note.service"));
 const createNoteController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = req.body;
-    const result = yield note_service_1.default.createNoteIntoDB(payload);
+    const user = req.user;
+    const result = yield note_service_1.default.createNoteIntoDB(user, payload);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
@@ -59,7 +60,8 @@ const getSingleNoteController = (0, catchAsync_1.default)((req, res) => __awaite
     });
 }));
 const getAllNotesController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield note_service_1.default.getAllNotesFromDB();
+    const { query } = req;
+    const result = yield note_service_1.default.getAllNotesFromDB(query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

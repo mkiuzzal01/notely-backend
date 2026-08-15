@@ -4,11 +4,6 @@ import { TGender, USER_ROLE } from './user.constant';
 export type TUserStatus = 'in-progress' | 'blocked';
 export type TUserRole = keyof typeof USER_ROLE;
 
-export type TName = {
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-};
 
 export type TLocation = {
   presentAddress: string;
@@ -16,7 +11,7 @@ export type TLocation = {
 };
 
 export interface IUser {
-  name: TName;
+  name: string;
   slug?: string;
   email: string;
   phone?: string;

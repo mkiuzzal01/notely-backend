@@ -57,7 +57,8 @@ const getSingleUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
     });
 }));
 const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.userService.getAllUsersFromDB();
+    const { query } = req;
+    const result = yield user_service_1.userService.getAllUsersFromDB(query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

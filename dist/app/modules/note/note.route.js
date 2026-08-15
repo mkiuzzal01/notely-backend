@@ -11,9 +11,9 @@ const validationRequest_1 = __importDefault(require("../../middlewares/validatio
 const note_validation_1 = require("./note.validation");
 const note_controller_1 = require("./note.controller");
 const route = (0, express_1.Router)();
-route.post('/create', (0, auth_1.auth)(user_constant_1.USER_ROLE.user), (0, validationRequest_1.default)(note_validation_1.noteValidation.noteSchema), note_controller_1.noteController.createNoteController);
-route.get('/all', (0, auth_1.auth)(user_constant_1.USER_ROLE.user), note_controller_1.noteController.getAllNotesController);
-route.get('/:slug', (0, auth_1.auth)(user_constant_1.USER_ROLE.user), note_controller_1.noteController.getSingleNoteController);
-route.patch('/update/:id', (0, auth_1.auth)(user_constant_1.USER_ROLE.user), (0, validationRequest_1.default)(note_validation_1.noteValidation.updateNoteSchema), note_controller_1.noteController.updateNoteController);
-route.delete('/delete/:id', (0, auth_1.auth)(user_constant_1.USER_ROLE.user), note_controller_1.noteController.deleteNoteController);
+route.post('/create', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), (0, validationRequest_1.default)(note_validation_1.noteValidation.noteSchema), note_controller_1.noteController.createNoteController);
+route.get('/all', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), note_controller_1.noteController.getAllNotesController);
+route.get('/:slug', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), note_controller_1.noteController.getSingleNoteController);
+route.patch('/update/:id', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), (0, validationRequest_1.default)(note_validation_1.noteValidation.updateNoteSchema), note_controller_1.noteController.updateNoteController);
+route.delete('/delete/:id', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), note_controller_1.noteController.deleteNoteController);
 exports.noteRoute = route;

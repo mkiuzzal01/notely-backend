@@ -3,10 +3,12 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import noteService from "./note.service";
 import { Request, Response } from "express";
+import { IUser } from "../user/user.interface";
 
 const createNoteController = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-  const result = await noteService.createNoteIntoDB(payload);
+  const user = req.user as IUser; 
+  const result = await noteService.createNoteIntoDB(user, payload);
   sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
@@ -50,7 +52,8 @@ const getSingleNoteController = catchAsync(async (req: Request, res: Response) =
 });
 
 const getAllNotesController = catchAsync(async (req: Request, res: Response) => {
-  const result = await noteService.getAllNotesFromDB();
+  const { query } = req;
+  const result = await noteService.getAllNotesFromDB(query);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,

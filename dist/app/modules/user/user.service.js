@@ -16,6 +16,8 @@ exports.userService = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const user_model_1 = require("./user.model");
+const queryBuilder_1 = __importDefault(require("../../builder/queryBuilder"));
+const user_constant_1 = require("./user.constant");
 const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isExists = yield user_model_1.User.findOne({ email: payload.email });
     if (isExists) {
@@ -25,22 +27,17 @@ const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function
     return result;
 });
 const updateUserIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g;
-    console.log("Hello");
+    var _a, _b, _c, _d;
     const isExists = yield user_model_1.User.findById(id);
     if (!isExists) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
     const updateUserPayload = {
-        name: {
-            firstName: ((_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName) || isExists.name.firstName,
-            middleName: ((_b = payload === null || payload === void 0 ? void 0 : payload.name) === null || _b === void 0 ? void 0 : _b.middleName) || isExists.name.middleName,
-            lastName: ((_c = payload === null || payload === void 0 ? void 0 : payload.name) === null || _c === void 0 ? void 0 : _c.lastName) || isExists.name.lastName,
-        },
+        name: payload.name || isExists.name,
         email: payload.email || isExists.email,
         address: {
-            presentAddress: ((_d = payload === null || payload === void 0 ? void 0 : payload.address) === null || _d === void 0 ? void 0 : _d.presentAddress) || ((_e = isExists.address) === null || _e === void 0 ? void 0 : _e.presentAddress),
-            permanentAddress: ((_f = payload === null || payload === void 0 ? void 0 : payload.address) === null || _f === void 0 ? void 0 : _f.permanentAddress) || ((_g = isExists.address) === null || _g === void 0 ? void 0 : _g.permanentAddress),
+            presentAddress: ((_a = payload === null || payload === void 0 ? void 0 : payload.address) === null || _a === void 0 ? void 0 : _a.presentAddress) || ((_b = isExists.address) === null || _b === void 0 ? void 0 : _b.presentAddress),
+            permanentAddress: ((_c = payload === null || payload === void 0 ? void 0 : payload.address) === null || _c === void 0 ? void 0 : _c.permanentAddress) || ((_d = isExists.address) === null || _d === void 0 ? void 0 : _d.permanentAddress),
         },
         phone: payload.phone || isExists.phone,
         gender: (payload === null || payload === void 0 ? void 0 : payload.gender) || isExists.gender,
@@ -67,9 +64,11 @@ const getSingleUserFromDB = (slug) => __awaiter(void 0, void 0, void 0, function
     }
     return isExists;
 });
-const getAllUsersFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.find();
-    return result;
+const getAllUsersFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const userQuery = new queryBuilder_1.default(user_model_1.User.find({ isDeleted: { $ne: true } }).select('-password'), query).filter().search(user_constant_1.userSearchableFields).sort().paginate();
+    const meta = yield userQuery.countTotal();
+    const result = yield userQuery.modelQuery;
+    return { result, meta };
 });
 exports.userService = {
     createUserIntoDB,

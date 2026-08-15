@@ -7,3 +7,6 @@ export const USER_ROLE = {
 export const USER_STATUS = ['in-progress', 'blocked'];
 
 export type TGender = 'male' | 'female' | 'other';
+
+
+export const userSearchableFields = ['name'];

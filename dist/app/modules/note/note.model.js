@@ -6,12 +6,8 @@ const noteSchema = new mongoose_1.Schema({
     title: { type: String, required: true, trim: true },
     slug: { type: String, unique: true, sparse: true },
     content: { type: String, required: true },
-    author: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'User',
-        required: [true, 'Author is required'],
-    },
-    isDeleted: { type: Boolean, default: false },
+    author: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true,
 });

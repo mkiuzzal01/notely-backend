@@ -5,7 +5,6 @@ import { User } from '../user/user.model';
 import config from '../../config';
 import { TChangePassword, TResetPassword } from './auth.interface';
 import bcrypt from 'bcrypt';
-
 import { createToken, verifyToken } from './auth.utils';
 import { sendMail } from '../../utils/sendMail';
 

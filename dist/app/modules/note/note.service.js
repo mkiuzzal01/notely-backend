@@ -15,8 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const note_model_1 = require("./note.model");
-const createNoteIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield note_model_1.Note.create(payload);
+const user_model_1 = require("../user/user.model");
+const note_constant_1 = require("./note.constant");
+const queryBuilder_1 = __importDefault(require("../../builder/queryBuilder"));
+const createNoteIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExists = yield user_model_1.User.findOne({ email: user.email });
+    if (!isExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
+    }
+    const notePayload = Object.assign(Object.assign({}, payload), { author: isExists._id });
+    const result = yield note_model_1.Note.create(notePayload);
     return result;
 });
 const updateNoteIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -49,9 +57,11 @@ const getSingleNoteFromDB = (slug) => __awaiter(void 0, void 0, void 0, function
     }
     return isExists;
 });
-const getAllNotesFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield note_model_1.Note.find({ isDeleted: false });
-    return result;
+const getAllNotesFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const noteQuery = new queryBuilder_1.default(note_model_1.Note.find({ isDeleted: { $ne: true } }).populate('author', 'name email'), query).filter().search(note_constant_1.noteSearchableFields).sort().paginate();
+    const meta = yield noteQuery.countTotal();
+    const result = yield noteQuery.modelQuery;
+    return { result, meta };
 });
 exports.default = {
     createNoteIntoDB,

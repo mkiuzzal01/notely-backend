@@ -2,6 +2,8 @@ import status from 'http-status';
 import AppError from '../../errors/AppError';
 import { IUser } from './user.interface';
 import { User } from './user.model';
+import QueryBuilder from '../../builder/queryBuilder';
+import { userSearchableFields } from './user.constant';
 
 const createUserIntoDB = async (payload: IUser) => {
   const isExists = await User.findOne({ email: payload.email });
@@ -13,20 +15,13 @@ const createUserIntoDB = async (payload: IUser) => {
 };
 
 const updateUserIntoDB = async (id: string, payload: Partial<IUser>) => {
-
-  console.log("Hello");
-
   const isExists = await User.findById(id);
   if (!isExists) {
     throw new AppError(status.NOT_FOUND, 'User not found');
   }
 
   const updateUserPayload = {
-    name:{
-      firstName: payload?.name?.firstName || isExists.name.firstName,
-      middleName: payload?.name?.middleName || isExists.name.middleName,
-      lastName: payload?.name?.lastName || isExists.name.lastName,
-    },
+    name: payload.name || isExists.name,
     email: payload.email || isExists.email,
     address:{
       presentAddress: payload?.address?.presentAddress || isExists.address?.presentAddress,
@@ -65,9 +60,14 @@ const getSingleUserFromDB = async (slug: string) => {
   return isExists;
 };
 
-const getAllUsersFromDB = async () => {
-  const result = await User.find();
-  return result;
+const getAllUsersFromDB = async (query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(
+    User.find({ isDeleted: { $ne: true } }).select('-password'), query).filter().search(userSearchableFields).sort().paginate();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return { result, meta };
 };
 
 export const userService = {

@@ -18,11 +18,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = __importDefault(require("../../config"));
 const user_constant_1 = require("./user.constant");
 const userSchema = new mongoose_1.Schema({
-    name: {
-        firstName: { type: String, required: true },
-        middleName: { type: String },
-        lastName: { type: String, required: true },
-    },
+    name: { type: String, required: true },
     slug: { type: String, unique: true },
     phone: { type: String, unique: true },
     address: {
@@ -69,24 +65,22 @@ userSchema.statics.isPasswordMatch = function (plaintextPassword, hashedPassword
 };
 //for create user slug:
 userSchema.pre('save', function () {
-    var _a, _b, _c;
     if (this.isModified('name')) {
         this.slug =
-            `${(_a = this.name) === null || _a === void 0 ? void 0 : _a.firstName}-${(_b = this.name) === null || _b === void 0 ? void 0 : _b.lastName}-${(_c = this.name) === null || _c === void 0 ? void 0 : _c.middleName}-${this.email}`
+            `${this.name}-${this.email}`
                 .toLowerCase()
                 .replace(/ /g, '-');
     }
 });
 //for update user slug:
 userSchema.pre('findOneAndUpdate', function () {
-    var _a, _b, _c;
     const update = this.getUpdate();
     if (update &&
         typeof update === 'object' &&
         !Array.isArray(update) &&
         'name' in update) {
         update.slug =
-            `${(_a = update.name) === null || _a === void 0 ? void 0 : _a.firstName}-${(_b = update.name) === null || _b === void 0 ? void 0 : _b.lastName}-${(_c = update.name) === null || _c === void 0 ? void 0 : _c.middleName}-${update.email}`
+            `${update.name}-${update.email}`
                 .toLowerCase()
                 .replace(/ /g, '-');
         this.setUpdate(update);

@@ -6,11 +6,7 @@ import { USER_STATUS } from './user.constant';
 
 const userSchema = new Schema<IUser, userModel>(
     {
-        name: {
-            firstName: { type: String, required: true },
-            middleName: { type: String },
-            lastName: { type: String, required: true },
-        },
+        name: { type: String, required: true },
         slug: { type: String, unique: true },
         phone: { type: String, unique: true },
         address: {
@@ -66,7 +62,7 @@ userSchema.statics.isPasswordMatch = async function (
 userSchema.pre('save', function () {
     if (this.isModified('name')) {
         this.slug =
-            `${this.name?.firstName}-${this.name?.lastName}-${this.name?.middleName}-${this.email}`
+            `${this.name}-${this.email}`
                 .toLowerCase()
                 .replace(/ /g, '-');
     }
@@ -82,7 +78,7 @@ userSchema.pre('findOneAndUpdate', function () {
         'name' in update
     ) {
         (update as Record<string, unknown>).slug =
-            `${update.name?.firstName}-${update.name?.lastName}-${update.name?.middleName}-${update.email}`
+            `${update.name}-${update.email}`
                 .toLowerCase()
                 .replace(/ /g, '-');
         this.setUpdate(update);

@@ -48,7 +48,8 @@ const getSingleUser: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const getAllUsers: RequestHandler = catchAsync(async (req, res) => {
-  const result = await userService.getAllUsersFromDB();
+  const { query } = req;
+  const result = await userService.getAllUsersFromDB(query);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
