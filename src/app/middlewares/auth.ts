@@ -10,23 +10,22 @@ import config from '../config';
 
 export const auth = (...requiredRole: TUserRole[]) => {
     return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const token = req.headers.authorization;
-        if (!token) {
+        const authHeader = (req.headers.authorization as string) || '';
+        if (!authHeader) {
             throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
         }
 
-        //verified token with decode:
-        const decoded = jwt.verify(
-            token,
-            config.jwt_secret as string,
-        ) as JwtPayload;
+        const token = authHeader.startsWith('Bearer ')
+            ? authHeader.split(' ')[1]
+            : authHeader;
 
-        //verification of role and authorization :
+        // verified token with decode:
+        const decoded = jwt.verify(token, config.jwt_secret as string) as JwtPayload;
+
+        // verification of role and authorization :
         const { role, email, iat } = decoded;
 
-        const isUserExist = await User.findOne({
-            email: email,
-        });
+        const isUserExist = await User.findOne({ email: email });
 
         if (!isUserExist) {
             throw new AppError(status.NOT_FOUND, 'User not found');
@@ -52,11 +51,17 @@ export const auth = (...requiredRole: TUserRole[]) => {
             throw new AppError(status.FORBIDDEN, 'Token has expired or is invalid');
         }
 
-        if (requiredRole && !requiredRole.includes(role)) {
+        if (requiredRole && !requiredRole.includes(role as any)) {
             throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
         }
 
-        req.user = decoded as JwtPayload;
+        // attach consistent user info for downstream ownership checks
+        req.user = {
+            id: isUserExist._id?.toString(),
+            email: isUserExist.email,
+            role: isUserExist.role,
+            iat,
+        } as unknown as JwtPayload;
 
         next();
     });

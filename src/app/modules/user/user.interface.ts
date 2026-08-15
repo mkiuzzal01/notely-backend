@@ -19,6 +19,7 @@ export interface IUser {
   gender: TGender;
   password: string;
   image?: string;
+  interests?: string[];
   passwordChangeAt?: Date;
   role: TUserRole;
   status: TUserStatus;

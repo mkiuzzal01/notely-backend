@@ -4,9 +4,9 @@ import { INote } from "./note.interface";
 const noteSchema = new Schema<INote>(
     {
         title: { type: String, required: true, trim: true },
-        slug: { type: String, unique: true, sparse: true },
+        slug: { type: String },
         content: { type: String, required: true },
-        author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         isDeleted: { type: Boolean, default: false }
     }
     , {
@@ -41,5 +41,8 @@ noteSchema.pre('findOneAndUpdate', function () {
     }
 });
 
-
+// Compound index on userId and createdAt as required
+noteSchema.index({ userId: 1, createdAt: -1 });
+// Explicit index for slug
+noteSchema.index({ slug: 1 }, { unique: true, sparse: true });
 export const Note = model<INote>('Note', noteSchema);

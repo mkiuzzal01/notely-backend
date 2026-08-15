@@ -17,7 +17,7 @@ const createNoteIntoDB = async (user: IUser, payload: INote) => {
 
   const notePayload = {
     ...payload,
-    author: isExists._id
+    userId: isExists._id
   };
 
   const result = await Note.create(notePayload);
@@ -25,10 +25,17 @@ const createNoteIntoDB = async (user: IUser, payload: INote) => {
 }
 
 
-const updateNoteIntoDB = async (id: string, payload: Partial<INote>) => {
+const updateNoteIntoDB = async (id: string, payload: Partial<INote>, currentUser: { id: string; role?: string }) => {
   const isExists = await Note.findById(id);
   if (!isExists) {
     throw new AppError(status.NOT_FOUND, 'Note not found');
+  }
+
+  // ownership check for non-admins
+  if (currentUser?.role !== 'admin' && currentUser?.role !== 'superAdmin') {
+    if (isExists.userId.toString() !== currentUser.id) {
+      throw new AppError(status.UNAUTHORIZED, 'You are not allowed to modify this note');
+    }
   }
 
   const updateNotePayload = {
@@ -43,11 +50,19 @@ const updateNoteIntoDB = async (id: string, payload: Partial<INote>) => {
   return result;
 };
 
-const deleteNoteFromDB = async (id: string) => {
+const deleteNoteFromDB = async (id: string, currentUser: { id: string; role?: string }) => {
   const isExists = await Note.findById(id);
   if (!isExists) {
     throw new AppError(status.NOT_FOUND, 'Note not found');
   }
+
+  // ownership check for non-admins
+  if (currentUser?.role !== 'admin' && currentUser?.role !== 'superAdmin') {
+    if (isExists.userId.toString() !== currentUser.id) {
+      throw new AppError(status.UNAUTHORIZED, 'You are not allowed to delete this note');
+    }
+  }
+
   await Note.findOneAndUpdate(
     { _id: id },
     { isDeleted: true },
@@ -56,18 +71,25 @@ const deleteNoteFromDB = async (id: string) => {
   return null;
 };
 
-const getSingleNoteFromDB = async (slug: string) => {
-  const isExists = await Note.findOne({ slug });
+const getSingleNoteFromDB = async (slug: string, currentUser?: { id: string; role?: string }) => {
+  const isExists = await Note.findOne({ slug }).populate('userId', 'name email');
   if (!isExists) {
     throw new AppError(status.NOT_FOUND, 'Note not found');
   }
+
+  if (currentUser && currentUser?.role !== 'admin' && currentUser?.role !== 'superAdmin') {
+    if (isExists.userId.toString() !== currentUser.id) {
+      throw new AppError(status.UNAUTHORIZED, 'You are not allowed to view this note');
+    }
+  }
+
   return isExists;
 };
 
 const getAllNotesFromDB = async (query: Record<string, unknown>) => {
-  const noteQuery = new QueryBuilder(Note.find({ isDeleted: { $ne: true } }).populate('author', 'name email'), query).filter().search(noteSearchableFields).sort().paginate();
+  const noteQuery = new QueryBuilder(Note.find({ isDeleted: { $ne: true } }).populate('userId', 'name email'), query).filter().search(noteSearchableFields).sort().paginate();
 
-    const meta = await noteQuery.countTotal();
+  const meta = await noteQuery.countTotal();
   const result = await noteQuery.modelQuery;
 
   return { result, meta };

@@ -22,17 +22,19 @@ const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const config_1 = __importDefault(require("../config"));
 const auth = (...requiredRole) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        const token = req.headers.authorization;
-        if (!token) {
+        var _a;
+        const authHeader = req.headers.authorization || '';
+        if (!authHeader) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'you are not authorized');
         }
-        //verified token with decode:
+        const token = authHeader.startsWith('Bearer ')
+            ? authHeader.split(' ')[1]
+            : authHeader;
+        // verified token with decode:
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_secret);
-        //verification of role and authorization :
+        // verification of role and authorization :
         const { role, email, iat } = decoded;
-        const isUserExist = yield user_model_1.User.findOne({
-            email: email,
-        });
+        const isUserExist = yield user_model_1.User.findOne({ email: email });
         if (!isUserExist) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
         }
@@ -52,7 +54,13 @@ const auth = (...requiredRole) => {
         if (requiredRole && !requiredRole.includes(role)) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'you are not authorized');
         }
-        req.user = decoded;
+        // attach consistent user info for downstream ownership checks
+        req.user = {
+            id: (_a = isUserExist._id) === null || _a === void 0 ? void 0 : _a.toString(),
+            email: isUserExist.email,
+            role: isUserExist.role,
+            iat,
+        };
         next();
     }));
 };

@@ -4,6 +4,7 @@ import { IUser } from './user.interface';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/queryBuilder';
 import { userSearchableFields } from './user.constant';
+import { Types } from 'mongoose';
 
 const createUserIntoDB = async (payload: IUser) => {
   const isExists = await User.findOne({ email: payload.email });
@@ -23,16 +24,16 @@ const updateUserIntoDB = async (id: string, payload: Partial<IUser>) => {
   const updateUserPayload = {
     name: payload.name || isExists.name,
     email: payload.email || isExists.email,
-    address:{
+    address: {
       presentAddress: payload?.address?.presentAddress || isExists.address?.presentAddress,
       permanentAddress: payload?.address?.permanentAddress || isExists.address?.permanentAddress,
     },
     phone: payload.phone || isExists.phone,
-    gender:payload?.gender || isExists.gender,
+    gender: payload?.gender || isExists.gender,
     image: payload?.image || isExists.image,
-    }
+  }
 
-  const result = await User.findOneAndUpdate({ _id: id }, updateUserPayload,{
+  const result = await User.findOneAndUpdate({ _id: id }, updateUserPayload, {
     new: true,
     runValidators: true,
   });
@@ -53,7 +54,7 @@ const deleteUSerFromDB = async (id: string) => {
 };
 
 const getSingleUserFromDB = async (slug: string) => {
-  const isExists = await User.findOne({ slug });
+  const isExists = await User.findOne({ slug }).select('-password');
   if (!isExists) {
     throw new AppError(status.NOT_FOUND, 'User not found');
   }
@@ -70,10 +71,48 @@ const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   return { result, meta };
 };
 
+const groupUsersByInterests = async () => {
+  const pipeline = [
+    { $unwind: '$interests' },
+    {
+      $group: {
+        _id: '$interests',
+        users: { $push: { _id: '$_id', name: '$name', email: '$email' } },
+      },
+    },
+    { $project: { interest: '$_id', users: 1, _id: 0 } },
+  ];
+
+  const result = await User.aggregate(pipeline);
+  return result;
+};
+
+const getUserWithPosts = async (userId: string) => {
+  const pipeline = [
+    { $match: { _id: new Types.ObjectId(userId) } },
+    {
+      $lookup: {
+        from: 'posts',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userPosts',
+      },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+  if (!result || result.length === 0) {
+    throw new AppError(status.NOT_FOUND, 'User not found');
+  }
+  return result[0];
+};
+
 export const userService = {
   createUserIntoDB,
   updateUserIntoDB,
   deleteUSerFromDB,
   getSingleUserFromDB,
   getAllUsersFromDB,
+  groupUsersByInterests,
+  getUserWithPosts,
 };

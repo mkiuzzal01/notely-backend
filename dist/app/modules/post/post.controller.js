@@ -12,70 +12,67 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.noteController = void 0;
+exports.postController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
-const note_service_1 = __importDefault(require("./note.service"));
-const createNoteController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const post_service_1 = __importDefault(require("./post.service"));
+const createPostController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = req.body;
     const user = req.user;
-    const result = yield note_service_1.default.createNoteIntoDB(user, payload);
+    const result = yield post_service_1.default.createPostIntoDB(user, payload);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
-        message: 'Note created successfully',
+        message: 'Post created successfully',
         data: result,
     });
 }));
-const updateNoteController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updatePostController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const payload = req.body;
-    const currentUser = req.user;
-    const result = yield note_service_1.default.updateNoteIntoDB(id, payload, currentUser);
+    const result = yield post_service_1.default.updatePostIntoDB(id, payload);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Note updated successfully',
+        message: 'Post updated successfully',
         data: result,
     });
 }));
-const deleteNoteController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const deletePostController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const currentUser = req.user;
-    const result = yield note_service_1.default.deleteNoteFromDB(id, currentUser);
+    const result = yield post_service_1.default.deletePostFromDB(id);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Note deleted successfully',
+        message: 'Post deleted successfully',
         data: result,
     });
 }));
-const getSingleNoteController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getSinglePostController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { slug } = req.params;
-    const currentUser = req.user;
-    const result = yield note_service_1.default.getSingleNoteFromDB(slug, currentUser);
+    const result = yield post_service_1.default.getSinglePostFromDB(slug);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Note fetched successfully',
+        message: 'Post fetched successfully',
         data: result,
     });
 }));
-const getAllNotesController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllPostsController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { query } = req;
-    const result = yield note_service_1.default.getAllNotesFromDB(query);
+    const result = yield post_service_1.default.getAllPostsFromDB(query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Notes fetched successfully',
+        message: 'Posts fetched successfully',
         data: result,
     });
 }));
-exports.noteController = {
-    createNoteController,
-    updateNoteController,
-    deleteNoteController,
-    getSingleNoteController,
-    getAllNotesController,
+exports.postController = {
+    createPostController,
+    updatePostController,
+    deletePostController,
+    getSinglePostController,
+    getAllPostsController,
 };

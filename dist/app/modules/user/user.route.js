@@ -12,6 +12,8 @@ const user_constant_1 = require("./user.constant");
 const auth_1 = require("../../middlewares/auth");
 const route = (0, express_1.Router)();
 route.get('/all', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), user_controller_1.userController.getAllUsers);
+route.get('/interests-group', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), user_controller_1.userController.groupUsersByInterests);
+route.get('/:id/posts', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), user_controller_1.userController.getUserWithPosts);
 route.get('/:slug', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), user_controller_1.userController.getSingleUser);
 route.post('/create', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin), user_controller_1.userController.createUser);
 route.patch('/update/:id', (0, auth_1.auth)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.user), (0, validationRequest_1.default)(user_validation_1.userValidation.updateUserValidationSchema), user_controller_1.userController.updateUser);

@@ -14,98 +14,52 @@ class QueryBuilder {
         this.modelQuery = modelQuery;
         this.query = query;
     }
-    search(searchableField) {
+    // 1. Search method
+    search(searchableFields) {
         const searchTerm = this.query.searchTerm;
         if (searchTerm) {
-            this.modelQuery = this.modelQuery.find({
-                $or: searchableField.map((field) => ({
-                    [field]: { $regex: searchTerm, $options: 'i' },
-                })),
-            });
+            const searchFilter = {
+                $or: searchableFields.map((field) => ({ [field]: { $regex: searchTerm, $options: 'i' } })),
+            };
+            const existingFilter = (this.modelQuery.getFilter && this.modelQuery.getFilter()) || {};
+            this.modelQuery = this.modelQuery.find(Object.assign(Object.assign({}, existingFilter), searchFilter));
         }
         return this;
     }
+    // 2. Filter method 
     filter() {
         const queryObj = Object.assign({}, this.query);
-        const excludeFields = [
-            'searchTerm',
-            'sort',
-            'limit',
-            'page',
-            'fields',
-            'priceMin',
-            'priceMax',
-        ];
+        const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
         excludeFields.forEach((field) => delete queryObj[field]);
-        const priceMin = this.query.priceMin ? Number(this.query.priceMin) : null;
-        const priceMax = this.query.priceMax ? Number(this.query.priceMax) : null;
-        const priceConditions = [];
-        if (priceMin !== null) {
-            priceConditions.push({
-                $gte: [
-                    {
-                        $cond: [
-                            { $lt: ['$discount', 100] },
-                            {
-                                $subtract: [
-                                    '$price',
-                                    { $multiply: ['$price', { $divide: ['$discount', 100] }] },
-                                ],
-                            },
-                            { $subtract: ['$price', '$discount'] },
-                        ],
-                    },
-                    priceMin,
-                ],
-            });
-        }
-        if (priceMax !== null) {
-            priceConditions.push({
-                $lte: [
-                    {
-                        $cond: [
-                            { $lt: ['$discount', 100] },
-                            {
-                                $subtract: [
-                                    '$price',
-                                    { $multiply: ['$price', { $divide: ['$discount', 100] }] },
-                                ],
-                            },
-                            { $subtract: ['$price', '$discount'] },
-                        ],
-                    },
-                    priceMax,
-                ],
-            });
-        }
-        if (priceConditions.length > 0) {
-            this.modelQuery = this.modelQuery.find(Object.assign({ $expr: { $and: priceConditions } }, queryObj));
-        }
-        else {
-            this.modelQuery = this.modelQuery.find(queryObj);
-        }
+        const existingFilter = (this.modelQuery.getFilter && this.modelQuery.getFilter()) || {};
+        const mergedFilter = Object.assign(Object.assign({}, existingFilter), queryObj);
+        this.modelQuery = this.modelQuery.find(mergedFilter);
         return this;
     }
+    // 3. Sort method 
     sort() {
         var _a, _b;
         const sort = ((_b = (_a = this.query.sort) === null || _a === void 0 ? void 0 : _a.split(',')) === null || _b === void 0 ? void 0 : _b.join(' ')) || '-createdAt';
         this.modelQuery = this.modelQuery.sort(sort);
         return this;
     }
+    // 4. Paginate method
     paginate() {
         var _a, _b;
         const page = Number((_a = this.query) === null || _a === void 0 ? void 0 : _a.page) || 1;
-        const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit);
+        const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit) || 10;
         const skip = (page - 1) * limit;
         this.modelQuery = this.modelQuery.skip(skip).limit(limit);
         return this;
     }
+    // 5. Field limiting
     fields() {
         var _a, _b;
         const fields = ((_b = (_a = this.query.fields) === null || _a === void 0 ? void 0 : _a.split(',')) === null || _b === void 0 ? void 0 : _b.join(' ')) || '-__v';
         this.modelQuery = this.modelQuery.select(fields);
         return this;
     }
+    // 6. Pagination Metadata Generator
     countTotal() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;

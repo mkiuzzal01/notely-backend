@@ -7,7 +7,7 @@ import { IUser } from "../user/user.interface";
 
 const createNoteController = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-  const user = req.user as IUser; 
+  const user = req.user as IUser;
   const result = await noteService.createNoteIntoDB(user, payload);
   sendResponse(res, {
     statusCode: status.CREATED,
@@ -20,7 +20,8 @@ const createNoteController = catchAsync(async (req: Request, res: Response) => {
 const updateNoteController = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const payload = req.body;
-  const result = await noteService.updateNoteIntoDB(id as string, payload);
+  const currentUser = req.user as any;
+  const result = await noteService.updateNoteIntoDB(id as string, payload, currentUser);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -31,7 +32,8 @@ const updateNoteController = catchAsync(async (req: Request, res: Response) => {
 
 const deleteNoteController = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await noteService.deleteNoteFromDB(id as string);
+  const currentUser = req.user as any;
+  const result = await noteService.deleteNoteFromDB(id as string, currentUser);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -42,7 +44,8 @@ const deleteNoteController = catchAsync(async (req: Request, res: Response) => {
 
 const getSingleNoteController = catchAsync(async (req: Request, res: Response) => {
   const { slug } = req.params;
-  const result = await noteService.getSingleNoteFromDB(slug as string);
+  const currentUser = req.user as any;
+  const result = await noteService.getSingleNoteFromDB(slug as string, currentUser);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,

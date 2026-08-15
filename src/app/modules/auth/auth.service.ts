@@ -37,6 +37,7 @@ const loginUser = async (payload: IUser) => {
 
     // generate access token:
     const jwtPayload = {
+        userId: isUserExist?._id?.toString(),
         email: isUserExist?.email,
         role: isUserExist?.role,
     };

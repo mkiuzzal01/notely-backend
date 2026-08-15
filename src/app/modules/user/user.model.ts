@@ -7,18 +7,19 @@ import { USER_STATUS } from './user.constant';
 const userSchema = new Schema<IUser, userModel>(
     {
         name: { type: String, required: true },
-        slug: { type: String, unique: true },
-        phone: { type: String, unique: true },
+        slug: { type: String },
+        phone: { type: String },
         address: {
             presentAddress: { type: String, required: true },
             permanentAddress: { type: String, required: true },
         },
         gender: { type: String, required: true },
-        email: { type: String, unique: true, required: true },
+        email: { type: String, required: true },
         password: { type: String, required: true },
         passwordChangeAt: {
             type: Date,
         },
+        interests: [{ type: String }],
         role: {
             type: String,
             enum: ['superAdmin', 'admin', 'user'],
@@ -44,6 +45,12 @@ userSchema.pre('save', async function () {
         Number(config.bcrypt_salt_round),
     );
 });
+
+// Indexes
+userSchema.index({ interests: 1 });
+userSchema.index({ slug: 1 }, { unique: true, sparse: true });
+userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+userSchema.index({ email: 1 }, { unique: true });
 
 // Hide password after saving
 userSchema.post('save', function (doc) {

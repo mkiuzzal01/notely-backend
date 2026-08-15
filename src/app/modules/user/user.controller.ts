@@ -58,10 +58,33 @@ const getAllUsers: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const groupUsersByInterests: RequestHandler = catchAsync(async (req, res) => {
+  const result = await userService.groupUsersByInterests();
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Users grouped by interests',
+    data: result,
+  });
+});
+
+const getUserWithPosts: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await userService.getUserWithPosts(id as string);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User with posts fetched successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   createUser,
   updateUser,
   deleteUser,
   getSingleUser,
   getAllUsers,
+  groupUsersByInterests,
+  getUserWithPosts,
 };

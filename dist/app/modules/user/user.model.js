@@ -19,18 +19,19 @@ const config_1 = __importDefault(require("../../config"));
 const user_constant_1 = require("./user.constant");
 const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    slug: { type: String, unique: true },
-    phone: { type: String, unique: true },
+    slug: { type: String },
+    phone: { type: String },
     address: {
         presentAddress: { type: String, required: true },
         permanentAddress: { type: String, required: true },
     },
     gender: { type: String, required: true },
-    email: { type: String, unique: true, required: true },
+    email: { type: String, required: true },
     password: { type: String, required: true },
     passwordChangeAt: {
         type: Date,
     },
+    interests: [{ type: String }],
     role: {
         type: String,
         enum: ['superAdmin', 'admin', 'user'],
@@ -53,6 +54,11 @@ userSchema.pre('save', function () {
         this.password = yield bcrypt_1.default.hash(this.password, Number(config_1.default.bcrypt_salt_round));
     });
 });
+// Indexes
+userSchema.index({ interests: 1 });
+userSchema.index({ slug: 1 }, { unique: true, sparse: true });
+userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+userSchema.index({ email: 1 }, { unique: true });
 // Hide password after saving
 userSchema.post('save', function (doc) {
     doc.password = '';

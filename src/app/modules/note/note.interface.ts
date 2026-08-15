@@ -4,6 +4,6 @@ export interface INote {
     title: string;
     slug?: string;
     content: string;
-    author: Types.ObjectId;
+    userId: Types.ObjectId;
     isDeleted: boolean;
 }

@@ -66,10 +66,31 @@ const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: result,
     });
 }));
+const groupUsersByInterests = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.userService.groupUsersByInterests();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Users grouped by interests',
+        data: result,
+    });
+}));
+const getUserWithPosts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield user_service_1.userService.getUserWithPosts(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'User with posts fetched successfully',
+        data: result,
+    });
+}));
 exports.userController = {
     createUser,
     updateUser,
     deleteUser,
     getSingleUser,
     getAllUsers,
+    groupUsersByInterests,
+    getUserWithPosts,
 };

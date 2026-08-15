@@ -18,6 +18,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const user_model_1 = require("./user.model");
 const queryBuilder_1 = __importDefault(require("../../builder/queryBuilder"));
 const user_constant_1 = require("./user.constant");
+const mongoose_1 = require("mongoose");
 const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isExists = yield user_model_1.User.findOne({ email: payload.email });
     if (isExists) {
@@ -58,7 +59,7 @@ const deleteUSerFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () 
     return null;
 });
 const getSingleUserFromDB = (slug) => __awaiter(void 0, void 0, void 0, function* () {
-    const isExists = yield user_model_1.User.findOne({ slug });
+    const isExists = yield user_model_1.User.findOne({ slug }).select('-password');
     if (!isExists) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
@@ -70,10 +71,44 @@ const getAllUsersFromDB = (query) => __awaiter(void 0, void 0, void 0, function*
     const result = yield userQuery.modelQuery;
     return { result, meta };
 });
+const groupUsersByInterests = () => __awaiter(void 0, void 0, void 0, function* () {
+    const pipeline = [
+        { $unwind: '$interests' },
+        {
+            $group: {
+                _id: '$interests',
+                users: { $push: { _id: '$_id', name: '$name', email: '$email' } },
+            },
+        },
+        { $project: { interest: '$_id', users: 1, _id: 0 } },
+    ];
+    const result = yield user_model_1.User.aggregate(pipeline);
+    return result;
+});
+const getUserWithPosts = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const pipeline = [
+        { $match: { _id: new mongoose_1.Types.ObjectId(userId) } },
+        {
+            $lookup: {
+                from: 'posts',
+                localField: '_id',
+                foreignField: 'userId',
+                as: 'userPosts',
+            },
+        },
+    ];
+    const result = yield user_model_1.User.aggregate(pipeline);
+    if (!result || result.length === 0) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
+    }
+    return result[0];
+});
 exports.userService = {
     createUserIntoDB,
     updateUserIntoDB,
     deleteUSerFromDB,
     getSingleUserFromDB,
     getAllUsersFromDB,
+    groupUsersByInterests,
+    getUserWithPosts,
 };

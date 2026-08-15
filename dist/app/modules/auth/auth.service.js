@@ -21,6 +21,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_utils_1 = require("./auth.utils");
 const sendMail_1 = require("../../utils/sendMail");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const isUserExist = yield user_model_1.User.findOne({
         email: payload === null || payload === void 0 ? void 0 : payload.email,
     });
@@ -42,6 +43,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // generate access token:
     const jwtPayload = {
+        userId: (_a = isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist._id) === null || _a === void 0 ? void 0 : _a.toString(),
         email: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.email,
         role: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.role,
     };
