@@ -5,16 +5,16 @@ export const sendMail = async (to: string, html: string) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: config.node_env === 'production',
+    secure: false,
     auth: {
-      user: 'mkiuzzal07@gmail.com',
-      pass: 'mqef beos qyjc mjai',
+      user: config.smtp_user,
+      pass: config.smtp_pass,
     },
   });
 
   await transporter.sendMail({
-    from: 'mkiuzzal007@gmail.com',
-    to: 'mkiuzzal07@gmail.com',
+    from: config.smtp_user,
+    to: to,
     subject: 'Reset password within 10 minutes',
     text: '',
     html: `${html}`,

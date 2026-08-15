@@ -18,6 +18,13 @@ exports.default = {
     jwt_refresh_expiration: process.env.JWT_REFRESH_EXPIRES_IN,
     jwt_forget_password_expiration: process.env.JWT_FORGET_PASSWORD_EXPIRES_IN,
     bcrypt_salt_round: process.env.BCRYPT_SALT_ROUND,
+    //smtp configuration:
+    smtp_user: process.env.SMTP_USER,
+    smtp_pass: process.env.SMTP_PASS,
+    // cloudinary configuration:
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret_key: process.env.API_SECRET_KEY,
     // email configuration:
     reset_pass_ui_link: process.env.RESET_PASS_UI_LINK,
     client_site_port: process.env.CLIENT_SITE_PORT,
