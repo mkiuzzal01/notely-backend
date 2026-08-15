@@ -5,8 +5,6 @@ import mongoose from 'mongoose';
 
 let server: Server;
 
-     console.log('Database URL:', config?.database_url);
-
 async function main() {
     try {
         server = app.listen(config.port, () => {

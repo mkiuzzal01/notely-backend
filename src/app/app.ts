@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-// import router from './router';
+import router from './router';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './utils/NotFound';
 import cookieParser from 'cookie-parser';
@@ -22,7 +22,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // All application routes:
-// app.use('/api/v1/', router);
+app.use('/api/v1/', router);
 
 // This is just test:
 app.get('/test', (req: Request, res: Response) => {
