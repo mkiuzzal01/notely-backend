@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./dist/app/server.js",
-    "build": "tsc",
-    "dev": "nodemon --watch src --ext ts --exec ts-node ./src/app/server.ts"
+    "start": "node api.js && node ./dist/app/server.js",
+    "build": "node api.js && tsc",
+    "dev": "node api.js && nodemon --watch src --ext ts --exec ts-node ./src/app/server.ts"
   },
   "keywords": [],
   "author": "",
