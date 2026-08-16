@@ -4,10 +4,12 @@ import router from './router';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './utils/NotFound';
 import cookieParser from 'cookie-parser';
+import config from './config';
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: ['localhost:3000'] }));
+const corsOrigin = config.cors_origin || 'http://localhost:3000';
+app.use(cors({ origin: Array.isArray(corsOrigin) ? corsOrigin : [corsOrigin] }));
 app.use(cookieParser());
 app.use(express.text());
 
