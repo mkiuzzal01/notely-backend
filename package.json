@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node api.js && node ./dist/app/server.js",
-    "build": "node api.js && tsc",
-    "dev": "node api.js && nodemon --watch src --ext ts --exec ts-node ./src/app/server.ts"
+    "start": "node init && node ./dist/app/server.js",
+    "build": "node init && tsc",
+    "dev": "node init && nodemon --watch src --ext ts --exec ts-node ./src/app/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.2",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^9.0.5",
     "zod": "^4.4.3"
   },
